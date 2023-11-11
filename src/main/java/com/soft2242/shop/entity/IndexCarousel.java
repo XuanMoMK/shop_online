@@ -59,6 +59,4 @@ public class IndexCarousel {
     @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
     @JsonIgnore
     private LocalDateTime updateTime;
-
-
 }

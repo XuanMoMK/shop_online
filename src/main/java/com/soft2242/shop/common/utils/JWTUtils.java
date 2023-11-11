@@ -5,8 +5,6 @@ import io.jsonwebtoken.*;
 import java.util.Map;
 
 public class JWTUtils {
-
-
     /**
      * 生成token
      *
@@ -14,6 +12,7 @@ public class JWTUtils {
      * @param claims
      * @return
      */
+
     public static String generateToken(String secret, Map<String, Object> claims) {
         String result = Jwts.builder()
                 .setClaims(claims)
@@ -21,7 +20,6 @@ public class JWTUtils {
                 .compact();
         return result;
     }
-
 
     public static Map getClaims(String secret, String token) {
         try {
