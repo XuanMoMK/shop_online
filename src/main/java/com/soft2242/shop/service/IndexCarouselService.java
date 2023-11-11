@@ -15,12 +15,11 @@ import java.util.List;
  * @since 2023-11-08
  */
 public interface IndexCarouselService extends IService<IndexCarousel> {
-/*
-*首页-广告区域
-*
-*@return
-* */
-List<IndexCarousel> getList(Integer distributionSite);
-
-
+    /**
+     * 获取指定分布点的轮播图列表
+     *
+     * @param distributionSite 分布点的标识
+     * @return 分布点对应的轮播图列表
+     */
+    List<IndexCarousel> getList(Integer distributionSite);
 }

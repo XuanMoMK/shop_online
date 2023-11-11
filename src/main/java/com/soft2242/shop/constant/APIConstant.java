@@ -1,4 +1,4 @@
-package com.soft2242.shop.common.constant;
+package com.soft2242.shop.constant;
 
 public class APIConstant {
     /**
@@ -23,11 +23,11 @@ public class APIConstant {
     /**
      * APP_ID
      */
-    public static String APP_ID = "wxf364139dc945d1f6";
+    public static String APP_ID = "";
     /**
      * APP_SECRET
      */
-    public static String APP_SECRET = "4589e2075bbaa295740117ec3a4e444e";
+    public static String APP_SECRET = "";
     /**
      * 微信调用api接口返回错误code
      */

@@ -7,6 +7,8 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.soft2242.shop.common.exception.ServerException;
+import com.soft2242.shop.common.utils.AliyunResource;
+import com.soft2242.shop.common.utils.FileResource;
 import com.soft2242.shop.common.utils.GeneratorCodeUtils;
 import com.soft2242.shop.common.utils.JWTUtils;
 import com.soft2242.shop.convert.UserConvert;
@@ -19,7 +21,6 @@ import com.soft2242.shop.vo.LoginResultVO;
 import com.soft2242.shop.vo.UserTokenVO;
 import com.soft2242.shop.vo.UserVO;
 import lombok.AllArgsConstructor;
-import org.apache.catalina.webresources.FileResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -29,7 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
-import static com.soft2242.shop.common.constant.APIConstant.*;
+import static com.soft2242.shop.constant.APIConstant.*;
 
 /**
  * <p>
