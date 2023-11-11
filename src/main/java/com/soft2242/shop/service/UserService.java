@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.soft2242.shop.query.UserLoginQuery;
 import com.soft2242.shop.vo.LoginResultVO;
 import com.soft2242.shop.vo.UserVO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * <p>
@@ -28,6 +29,7 @@ public interface UserService extends IService<User> {
 //        @roturn
     UserVO editUserInfo(UserVO userVO);
 
+    String editUserAvatar(Integer userId, MultipartFile file);
 
 
 }
