@@ -64,6 +64,11 @@ public class UserShippingAddressController {
         return Result.ok(address);
     }
 
-
+    @Operation(summary = "删除收货地址")
+    @DeleteMapping("address")
+    public Result deleteAddress(@RequestParam Integer id) {
+        userShippingAddressService.deleteAddress(id);
+        return Result.ok();
+    }
 }
 

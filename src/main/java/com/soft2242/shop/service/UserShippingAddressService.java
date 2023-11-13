@@ -21,5 +21,6 @@ public interface UserShippingAddressService extends IService<UserShippingAddress
     Integer editShoppingAddress(AddressVO addressVO);
     List<AddressVO> getAddressList(Integer userId);
     AddressVO getAddress(Integer id);
+    void deleteAddress(Integer id);
 
 }

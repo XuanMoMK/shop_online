@@ -68,6 +68,15 @@ public class UserShippingAddressServiceImpl extends ServiceImpl<UserShippingAddr
         return AddressConvert.INSTANCE.convertToAddressVO(address);
     }
 
-
+    @Override
+    public void deleteAddress(Integer id) {
+        //逻辑删除,将地址的delete_flag置为1即可
+        UserShippingAddress address = baseMapper.selectById(id);
+        if (address == null){
+            throw new ServerException("地址不存在");
+        }else {
+            baseMapper.deleteById(id);
+        }
+    }
 
 }
