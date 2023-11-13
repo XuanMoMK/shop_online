@@ -5,6 +5,7 @@ import com.soft2242.shop.common.exception.ServerException;
 import com.soft2242.shop.convert.AddressConvert;
 import com.soft2242.shop.entity.UserShippingAddress;
 import com.soft2242.shop.enums.AddressDefaultEnum;
+import com.soft2242.shop.enums.AddressDeleteFlagEnum;
 import com.soft2242.shop.mapper.UserShippingAddressMapper;
 import com.soft2242.shop.service.UserShippingAddressService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -54,4 +55,19 @@ public class UserShippingAddressServiceImpl extends ServiceImpl<UserShippingAddr
         updateById(address);
         return address.getId();
     }
+
+    @Override
+    public List<AddressVO> getAddressList(Integer userId) {
+        List<UserShippingAddress> list = baseMapper.selectList(new LambdaQueryWrapper<UserShippingAddress>().eq(UserShippingAddress::getUserId, userId));
+        return AddressConvert.INSTANCE.convertToAddressVOList(list);
+    }
+
+    @Override
+    public AddressVO getAddress(Integer id) {
+        UserShippingAddress address = baseMapper.selectOne(new LambdaQueryWrapper<UserShippingAddress>().eq(UserShippingAddress::getId, id));
+        return AddressConvert.INSTANCE.convertToAddressVO(address);
+    }
+
+
+
 }

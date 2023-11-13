@@ -11,6 +11,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static com.soft2242.shop.common.utils.ObtainUserIdUtils.getUserId;
 
 /**
@@ -47,5 +49,21 @@ public class UserShippingAddressController {
         Integer addressId = userShippingAddressService.editShoppingAddress(addressVO);
         return Result.ok(addressId);
     }
+
+    @Operation(summary = "收货地址列表")
+    @GetMapping("address")
+    public Result<List<AddressVO>> getAddressList(@RequestParam Integer userId) {
+        List<AddressVO> addressList = userShippingAddressService.getAddressList(userId);
+        return Result.ok(addressList);
+    }
+
+    @Operation(summary = "收货地址详情")
+    @GetMapping("address/detail")
+    public Result<AddressVO> getAddress(@RequestParam Integer id) {
+        AddressVO address = userShippingAddressService.getAddress(id);
+        return Result.ok(address);
+    }
+
+
 }
 
