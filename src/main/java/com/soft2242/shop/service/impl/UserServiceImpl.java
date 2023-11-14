@@ -136,7 +136,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             throw new ServerException("用户不存在");
         }
-        uploadFileName = fileResource.getOssHost() + uploadFileName;
+        uploadFileName = "https://" + fileResource.getOssHost() + "/" + uploadFileName;;
         user .setAvatar(uploadFileName);
         baseMapper. updateById(user);
         return uploadFileName ;
