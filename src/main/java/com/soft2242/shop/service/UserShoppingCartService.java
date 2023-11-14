@@ -3,6 +3,7 @@ package com.soft2242.shop.service;
 import com.soft2242.shop.entity.UserShoppingCart;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.soft2242.shop.query.CartQuery;
+import com.soft2242.shop.query.EditCartQuery;
 import com.soft2242.shop.vo.CartGoodsVO;
 import org.apache.ibatis.annotations.Param;
 
@@ -24,5 +25,7 @@ public interface UserShoppingCartService extends IService<UserShoppingCart> {
     //购物车列表
     List<CartGoodsVO> shopCartList(Integer userId);
 
+    //修改购物车
+    CartGoodsVO editCart(EditCartQuery query);
 
 }
