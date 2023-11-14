@@ -10,6 +10,7 @@ import com.soft2242.shop.mapper.UserShippingAddressMapper;
 import com.soft2242.shop.service.UserShippingAddressService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.soft2242.shop.vo.AddressVO;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.List;
  * @since 2023-11-08
  */
 @Service
+@AllArgsConstructor
 public class UserShippingAddressServiceImpl extends ServiceImpl<UserShippingAddressMapper, UserShippingAddress> implements UserShippingAddressService {
 
     @Override
