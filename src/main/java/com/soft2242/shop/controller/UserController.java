@@ -62,5 +62,6 @@ public class UserController {
         String uploadFileName = userService.editUserAvatar(userId, file);
         return Result.ok(uploadFileName);
     }
+
 }
 

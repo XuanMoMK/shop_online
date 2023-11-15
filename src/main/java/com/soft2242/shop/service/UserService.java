@@ -17,18 +17,38 @@ import org.springframework.web.multipart.MultipartFile;
  * @since 2023-11-08
  */
 public interface UserService extends IService<User> {
+
+    /**
+     * 用户登录
+     *
+     * @param query
+     * @return
+     */
     LoginResultVO login(UserLoginQuery query);
 
-//    根据用户id 获取用户信息
-//    @paran userId
-//    @return
+    /**
+     * 根据用户id 获取用户信息
+     *
+     * @param userId
+     * @return
+     */
     User getUserInfo(Integer userId);
 
-//“修改用户信息
-//    @paran usaPVC
-//        @roturn
+    /**
+     * 修改用户信息
+     *
+     * @param userVO
+     * @return
+     */
     UserVO editUserInfo(UserVO userVO);
 
+    /**
+     * 修改用户头像
+     *
+     * @param userId
+     * @param file
+     * @return
+     */
     String editUserAvatar(Integer userId, MultipartFile file);
 
 

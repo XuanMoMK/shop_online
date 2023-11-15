@@ -48,7 +48,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final FileResource fileResource;
     private final AliyunResource aliyunResource;
 
-
+    @Override
     public LoginResultVO login(UserLoginQuery query) {
         //  1、获取openId
         String url = "https://api.weixin.qq.com/sns/jscode2session?" +
@@ -60,12 +60,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String openIdResult = restTemplate.getForObject(url, String.class);
         if (StringUtils.contains(openIdResult, WX_ERR_CODE)) {
             throw new SecurityException("openId获取失败" + openIdResult);
-
-
         }
+
+        //  2、解析返回的数据
         JSONObject jsonObject = JSON.parseObject(openIdResult);
         String openId = jsonObject.getString(WX_OPENID);
         User user = baseMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getOpenId, openId));
+
+        //  3、判断用户是否存在，如果用户不存在直接注册新用户
         if (user == null) {
             user = new User();
             String account = "用户" + GeneratorCodeUtils.generateCode();
@@ -75,16 +77,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setOpenId(openId);
             user.setMobile("''");
             baseMapper.insert(user);
-
         }
         LoginResultVO userVO= UserConvert.INSTANCE.convertToLoginResultVO(user);
+
+        //  4、生成token,存入 redis并设置过期时间
         UserTokenVO tokenVO=new UserTokenVO(userVO.getId());
         String token =JWTUtils.generateToken(JWT_SECRET,tokenVO.toMap());
         redisService.set(APP_NAME+userVO.getId(),token,APP_TOKEN_EXPIRE_TIME);
         userVO.setToken(token);
-        return userVO;
 
+        return userVO;
     }
+
     @Override
     public User getUserInfo(Integer userId) {
         User user = baseMapper.selectById(userId);
@@ -92,8 +96,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new ServerException("用户不存在");
         }
         return user;
-
     }
+
     @Override
     public UserVO editUserInfo(UserVO userVO) {
         User user = baseMapper.selectById(userVO.getId());
@@ -113,8 +117,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String accessKeySecret = aliyunResource.getAccessKeySecret();
 //        创建OSSclient实例
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
-        String filename = file.getOriginalFilename();
 //        分隔文件名,获得文件后缀名
+        String filename = file.getOriginalFilename();
         assert filename != null;
         String[] fileNameArr = filename. split("\\.");
         String suffix = fileNameArr[fileNameArr. length-1];
@@ -136,10 +140,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             throw new ServerException("用户不存在");
         }
-        uploadFileName = "https://" + fileResource.getOssHost() + "/" + uploadFileName;;
+        uploadFileName = fileResource.getOssHost() + uploadFileName;
         user .setAvatar(uploadFileName);
         baseMapper. updateById(user);
         return uploadFileName ;
 
     }
 }
+

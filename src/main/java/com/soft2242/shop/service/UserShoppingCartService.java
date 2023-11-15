@@ -22,7 +22,7 @@ public interface UserShoppingCartService extends IService<UserShoppingCart> {
     //添加购物车
     CartGoodsVO addShopCart(CartQuery query);
 
-    //购物车列表
+    //获取购物车列表
     List<CartGoodsVO> shopCartList(Integer userId);
 
     //修改购物车

@@ -76,33 +76,30 @@ public class UserShoppingCartServiceImpl extends ServiceImpl<UserShoppingCartMap
 
     @Override
     public CartGoodsVO editCart(EditCartQuery query) {
-        UserShoppingCart userShoppingCart = baseMapper. selectById(query.getId());
-        if (userShoppingCart == null) {
+        UserShoppingCart userShoppingCart = baseMapper.selectById(query.getId());
+        if (userShoppingCart == null){
             throw new ServerException("购物车信息不存在");
         }
-
         userShoppingCart.setCount(query.getCount());
         userShoppingCart.setSelected(query.getSelected());
         baseMapper.updateById(userShoppingCart);
-
         //查询购物车信息
         Goods goods = goodsMapper.selectById(userShoppingCart.getGoodsId());
-        if (query.getCount() > goods.getInventory()) {
-            throw new ServerException(goods.getName() + "库存数量不足");
+        if (query.getCount()>goods.getInventory()){
+            throw new ServerException("库存不足");
         }
-        CartGoodsVO goodsVO = new CartGoodsVO();
-        goodsVO.setId(userShoppingCart.getId());
-        goodsVO.setName(goods.getName());
-        goodsVO.setAttrsText( userShoppingCart.getAttrsText());
-        goodsVO.setPrice(userShoppingCart.getPrice());
-        goodsVO. setNowPrice(goods.getPrice());
-        goodsVO.setSelected(userShoppingCart.getSelected());
-        goodsVO.setStock(goods.getInventory());
-        goodsVO.setCount(query.getCount());
-        goodsVO.setPicture(goods .getCover());
-        goodsVO.setDiscount(goods.getDiscount());
-        return goodsVO;
-
+        CartGoodsVO cartGoodsVO = new CartGoodsVO();
+        cartGoodsVO.setId(userShoppingCart.getId());
+        cartGoodsVO.setName(goods.getName());
+        cartGoodsVO.setAttrsText(userShoppingCart.getAttrsText());
+        cartGoodsVO.setPrice(userShoppingCart.getPrice());
+        cartGoodsVO.setNowPrice(goods.getPrice());
+        cartGoodsVO.setSelected(userShoppingCart.getSelected());
+        cartGoodsVO.setStock(goods.getInventory());
+        cartGoodsVO.setCount(query.getCount());
+        cartGoodsVO.setPicture(goods.getCover());
+        cartGoodsVO.setDiscount(goods.getDiscount());
+        return cartGoodsVO;
     }
 
     @Override
