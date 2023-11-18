@@ -41,14 +41,16 @@ public class UserShippingAddressServiceImpl extends ServiceImpl<UserShippingAddr
     }
 
     @Override
-    public Integer editShoppingAddress(AddressVO addressVO) {
+    public Integer editShippingAddress(AddressVO addressVO) {
         UserShippingAddress userShippingAddress = baseMapper.selectById(addressVO.getId());
-        if (userShippingAddress == null){
+        if (userShippingAddress == null) {
             throw new ServerException("地址不存在");
         }
-        if (addressVO.getIsDefault() == AddressDefaultEnum.DEFAULT_ADDRESS.getValue()){
+        if (addressVO.getIsDefault() == AddressDefaultEnum.DEFAULT_ADDRESS.getValue()) {
+//            查询该用户是否已经存在默认地址
             UserShippingAddress address = baseMapper.selectOne(new LambdaQueryWrapper<UserShippingAddress>().eq(UserShippingAddress::getUserId, addressVO.getUserId()).eq(UserShippingAddress::getIsDefault, AddressDefaultEnum.DEFAULT_ADDRESS.getValue()));
-            if (address != null){
+//           如果存在将之前的默认地址修改掉
+            if (address != null) {
                 address.setIsDefault(AddressDefaultEnum.NOT_DEFAULT_ADDRESS.getValue());
                 updateById(address);
             }
@@ -59,26 +61,30 @@ public class UserShippingAddressServiceImpl extends ServiceImpl<UserShippingAddr
     }
 
     @Override
-    public List<AddressVO> getAddressList(Integer userId) {
-        List<UserShippingAddress> list = baseMapper.selectList(new LambdaQueryWrapper<UserShippingAddress>().eq(UserShippingAddress::getUserId, userId));
-        return AddressConvert.INSTANCE.convertToAddressVOList(list);
+    public List<AddressVO> getList(Integer userId) {
+        LambdaQueryWrapper<UserShippingAddress> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserShippingAddress::getUserId, userId);
+//        根据是否为默认地址和创建时间倒序排列
+        wrapper.orderByDesc(UserShippingAddress::getIsDefault);
+        wrapper.orderByDesc(UserShippingAddress::getCreateTime);
+        List<UserShippingAddress> list = baseMapper.selectList(wrapper);
+        List<AddressVO> results = AddressConvert.INSTANCE.convertToAddressVOList(list);
+        return results;
     }
 
     @Override
-    public AddressVO getAddress(Integer id) {
-        UserShippingAddress address = baseMapper.selectOne(new LambdaQueryWrapper<UserShippingAddress>().eq(UserShippingAddress::getId, id));
-        return AddressConvert.INSTANCE.convertToAddressVO(address);
-    }
-
-    @Override
-    public void deleteAddress(Integer id) {
-        //逻辑删除,将地址的delete_flag置为1即可
-        UserShippingAddress address = baseMapper.selectById(id);
-        if (address == null){
+    public AddressVO getAddressInfo(Integer id) {
+        UserShippingAddress userShippingAddress = baseMapper.selectById(id);
+        if (userShippingAddress == null) {
             throw new ServerException("地址不存在");
-        }else {
-            baseMapper.deleteById(id);
         }
+        AddressVO addressVO = AddressConvert.INSTANCE.convertToAddressVO(userShippingAddress);
+        return addressVO;
+    }
+
+    @Override
+    public void removeShippingAddress(Integer id) {
+        removeById(id);
     }
 
 }

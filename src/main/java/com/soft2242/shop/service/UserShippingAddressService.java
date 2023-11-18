@@ -16,11 +16,43 @@ import java.util.List;
  */
 public interface UserShippingAddressService extends IService<UserShippingAddress> {
 
+    /**
+     * 添加收货地址
+     *
+     * @param addressVO
+     * @return
+     */
     Integer saveShippingAddress(AddressVO addressVO);
 
-    Integer editShoppingAddress(AddressVO addressVO);
-    List<AddressVO> getAddressList(Integer userId);
-    AddressVO getAddress(Integer id);
-    void deleteAddress(Integer id);
+    /**
+     * 修改收货地址
+     *
+     * @param addressVO
+     * @return
+     */
+    Integer editShippingAddress(AddressVO addressVO);
+
+    /**
+     * 收货地址列表
+     *
+     * @param userId
+     * @return
+     */
+    List<AddressVO> getList(Integer userId);
+
+    /**
+     *收货地址详情
+     *
+     * @param id
+     * @return
+     */
+    AddressVO getAddressInfo(Integer id);
+
+    /**
+     * 删除收货地址
+     *
+     * @param id
+     */
+    void removeShippingAddress(Integer id);
 
 }
