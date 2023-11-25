@@ -59,7 +59,8 @@ public interface UserOrderService extends IService<UserOrder> {
 //订单支付
     void payOrder(Integer id);
 
-
+//    模拟发货
+    void consignOrder(Integer id);
 
 
 }

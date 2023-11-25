@@ -435,7 +435,19 @@ public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder
         cancelScheduledTask();
     }
 
-
+    @Override
+    public void consignOrder(Integer id) {
+        UserOrder userOrder = baseMapper.selectById(id);
+        if (userOrder == null) {
+            throw new ServerException("订单不存在");
+        }
+        if (userOrder.getStatus() != OrderStatusEnum.WAITING_FOR_SHIPMENT.getValue()) {
+            throw new ServerException("订单已发货");
+        }
+        userOrder.setStatus(OrderStatusEnum.WAITING_FOR_DELIVERY.getValue());
+        userOrder.setConsignTime(LocalDateTime.now());
+        baseMapper.updateById(userOrder);
+    }
 
 
 
