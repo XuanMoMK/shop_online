@@ -48,5 +48,15 @@ public interface UserOrderService extends IService<UserOrder> {
 // 取消订单
     OrderDetailVO cancelOrder(CancelGoodsQuery query);
 
-    
+    /**
+     * 删除订单
+     *
+     * @param ids
+     */
+    void deleteOrder(List<Integer> ids,Integer userId);
+
+
+
+
+
 }
