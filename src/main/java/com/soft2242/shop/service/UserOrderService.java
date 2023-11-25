@@ -1,11 +1,17 @@
 package com.soft2242.shop.service;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.soft2242.shop.entity.Goods;
 import com.soft2242.shop.entity.UserOrder;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.soft2242.shop.query.OrderPreQuery;
 import com.soft2242.shop.vo.OrderDetailVO;
 import com.soft2242.shop.vo.SubmitOrderVO;
+import com.soft2242.shop.vo.UserOrderGoodsVO;
 import com.soft2242.shop.vo.UserOrderVO;
+import io.lettuce.core.dynamic.annotation.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -46,4 +52,13 @@ public interface UserOrderService extends IService<UserOrder> {
      * @return
      */
     SubmitOrderVO getPreNowOrderDetail(OrderPreQuery query);
+
+    /**
+     * 填写订单 - 获取再次购买订单
+     *
+     * @param id
+     * @return
+     */
+    SubmitOrderVO getRepurchaseOrderDetail(Integer id);
+
 }
