@@ -1,16 +1,22 @@
 package com.soft2242.shop.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.soft2242.shop.common.exception.ServerException;
+import com.soft2242.shop.convert.UserOrderDetailConvert;
 import com.soft2242.shop.entity.Goods;
 import com.soft2242.shop.entity.UserOrder;
 import com.soft2242.shop.entity.UserOrderGoods;
+import com.soft2242.shop.entity.UserShippingAddress;
 import com.soft2242.shop.enums.OrderStatusEnum;
 import com.soft2242.shop.mapper.GoodsMapper;
+import com.soft2242.shop.mapper.UserOrderGoodsMapper;
 import com.soft2242.shop.mapper.UserOrderMapper;
+import com.soft2242.shop.mapper.UserShippingAddressMapper;
 import com.soft2242.shop.query.OrderGoodsQuery;
 import com.soft2242.shop.service.UserOrderGoodsService;
 import com.soft2242.shop.service.UserOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.soft2242.shop.vo.OrderDetailVO;
 import com.soft2242.shop.vo.UserOrderVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -18,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +44,33 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder> implements UserOrderService {
+    @Autowired
+    private GoodsMapper goodsMapper;
+
+    @Autowired
+    private UserOrderGoodsService userOrderGoodsService;
+
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private ScheduledFuture<?> cancelTask;
+
+
+    @Async
+    public void scheduleOrderCancel(UserOrder userOrder) {
+        cancelTask = executorService.schedule(() -> {
+            if (userOrder.getStatus() == OrderStatusEnum.WAITING_FOR_PAYMENT.getValue()) {
+                userOrder.setStatus(OrderStatusEnum.CANCELLED.getValue());
+                baseMapper.updateById(userOrder);
+            }
+        }, 30, TimeUnit.MINUTES);
+    }
+
+    public void cancelScheduledTask() {
+        if (cancelTask != null && !cancelTask.isDone()) {
+//            取消定时任务
+            cancelTask.cancel(true);
+        }
+    }
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -93,9 +128,7 @@ public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder
             goodsMapper.updateById(goods);
         }
 
-
         userOrderGoodsService.batchUserOrderGoods(orderGoodsList);
-
         userOrder.setTotalPrice(totalPrice.doubleValue());
         userOrder.setTotalCount(totalCount);
         userOrder.setTotalFreight(totalFreight.doubleValue());
@@ -103,32 +136,44 @@ public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder
 
         return userOrder.getId();
     }
-    @Autowired
-    private GoodsMapper goodsMapper;
-
-    @Autowired
-    private UserOrderGoodsService userOrderGoodsService;
-
-    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-    private ScheduledFuture<?> cancelTask;
 
 
-    @Async
-    public void scheduleOrderCancel(UserOrder userOrder) {
-        cancelTask = executorService.schedule(() -> {
-            if (userOrder.getStatus() == OrderStatusEnum.WAITING_FOR_PAYMENT.getValue()) {
-                userOrder.setStatus(OrderStatusEnum.CANCELLED.getValue());
-                baseMapper.updateById(userOrder);
-            }
-        }, 30, TimeUnit.MINUTES);
-    }
-
-    public void cancelScheduledTask() {
-        if (cancelTask != null && !cancelTask.isDone()) {
-//            取消定时任务
-            cancelTask.cancel(true);
+    @Override
+    public OrderDetailVO getOrderDetail(Integer id) {
+//       1、订单信息
+        UserOrder userOrder = baseMapper.selectById(id);
+        if (userOrder == null) {
+            throw new ServerException("订单信息不存在");
         }
+        OrderDetailVO orderDetailVO = UserOrderDetailConvert.INSTANCE.convertToOrderDetailVo(userOrder);
+        orderDetailVO.setTotalMoney(userOrder.getTotalPrice());
+
+//        2、收货人信息
+        UserShippingAddress userShippingAddress = UserShippingAddressMapper.selectById(userOrder.getAddressId());
+
+        if (userShippingAddress == null) {
+            throw new ServerException("收货地址信息不存在");
+        }
+        orderDetailVO.setReceiverContact(userShippingAddress.getReceiver());
+        orderDetailVO.setReceiverMobile(userShippingAddress.getContact());
+        orderDetailVO.setReceiverAddress(userShippingAddress.getAddress());
+
+//        3、商品集合
+        List<UserOrderGoods> list = UserOrderGoodsMapper.selectList(new LambdaQueryWrapper<UserOrderGoods>().eq(UserOrderGoods::getOrderId, id));
+
+        orderDetailVO.setSkus(list);
+//       订单截至订单创建30分钟之后
+        orderDetailVO.setPayLatestTime(userOrder.getCreateTime().plusMinutes(30));
+
+        if (orderDetailVO.getPayLatestTime().isAfter(LocalDateTime.now())) {
+            Duration duration = Duration.between(LocalDateTime.now(), orderDetailVO.getPayLatestTime());
+//        倒计时秒数
+            orderDetailVO.setCountdown(duration.toMillisPart());
+        }
+
+        return orderDetailVO;
     }
+
 }
 
 
