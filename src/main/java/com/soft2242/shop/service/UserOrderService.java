@@ -5,6 +5,7 @@ import com.soft2242.shop.common.result.PageResult;
 import com.soft2242.shop.entity.Goods;
 import com.soft2242.shop.entity.UserOrder;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.soft2242.shop.query.CancelGoodsQuery;
 import com.soft2242.shop.query.OrderPreQuery;
 import com.soft2242.shop.query.OrderQuery;
 import com.soft2242.shop.vo.OrderDetailVO;
@@ -24,53 +25,28 @@ import java.util.List;
  * @since 2023-11-08
  */
 public interface UserOrderService extends IService<UserOrder> {
-    /**
-     * 提交订单
-     *
-     * @return
-     */
+
+//提交订单
     Integer addGoodsOrder(UserOrderVO orderVO);
 
-    /**
-     * 订单详情
-     *
-     * @param id
-     * @return
-     */
+
+//订单详情
     OrderDetailVO getOrderDetail(Integer id);
 
-    /**
-     * 填写订单 - 获取预付订单
-     *
-     * @param userId
-     * @return
-     */
+//填写订单 - 获取预付订单
     SubmitOrderVO getPreOrderDetail(Integer userId);
 
-    /**
-     * 填写订单 - 获取立即购买订单
-     *
-     * @param query
-     * @return
-     */
+//填写订单 - 获取立即购买订单
     SubmitOrderVO getPreNowOrderDetail(OrderPreQuery query);
 
-    /**
-     * 填写订单 - 获取再次购买订单
-     *
-     * @param id
-     * @return
-     */
+//填写订单 - 获取再次购买订单
     SubmitOrderVO getRepurchaseOrderDetail(Integer id);
 
-    /**
-     * 订单列表
-     *
-     * @param query
-     * @return
-     */
+//订单列表
     PageResult<OrderDetailVO> getOrderList(OrderQuery query);
 
+// 取消订单
+    OrderDetailVO cancelOrder(CancelGoodsQuery query);
 
-
+    
 }
