@@ -48,6 +48,12 @@ public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> cancelTask;
 
+    @Autowired
+    private UserShippingAddressMapper userShippingAddressMapper;
+    @Autowired
+    private UserOrderGoodsMapper userOrderGoodsMapper;
+    @Autowired
+    private UserShoppingCartMapper userShoppingCartMapper;
 
     @Async
     public void scheduleOrderCancel(UserOrder userOrder) {
@@ -123,7 +129,9 @@ public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder
             goodsMapper.updateById(goods);
         }
 
+
         userOrderGoodsService.batchUserOrderGoods(orderGoodsList);
+
         userOrder.setTotalPrice(totalPrice.doubleValue());
         userOrder.setTotalCount(totalCount);
         userOrder.setTotalFreight(totalFreight.doubleValue());
@@ -131,7 +139,6 @@ public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder
 
         return userOrder.getId();
     }
-
 
     @Override
     public OrderDetailVO getOrderDetail(Integer id) {
@@ -144,7 +151,7 @@ public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder
         orderDetailVO.setTotalMoney(userOrder.getTotalPrice());
 
 //        2、收货人信息
-        UserShippingAddress userShippingAddress = UserShippingAddressMapper.selectById(userOrder.getAddressId());
+        UserShippingAddress userShippingAddress = userShippingAddressMapper.selectById(userOrder.getAddressId());
 
         if (userShippingAddress == null) {
             throw new ServerException("收货地址信息不存在");
@@ -154,7 +161,7 @@ public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder
         orderDetailVO.setReceiverAddress(userShippingAddress.getAddress());
 
 //        3、商品集合
-        List<UserOrderGoods> list = UserOrderGoodsMapper.selectList(new LambdaQueryWrapper<UserOrderGoods>().eq(UserOrderGoods::getOrderId, id));
+        List<UserOrderGoods> list = userOrderGoodsMapper.selectList(new LambdaQueryWrapper<UserOrderGoods>().eq(UserOrderGoods::getOrderId, id));
 
         orderDetailVO.setSkus(list);
 //       订单截至订单创建30分钟之后
@@ -169,10 +176,9 @@ public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder
         return orderDetailVO;
     }
 
-
     public List<UserAddressVO> getAddressListByUserId(Integer userId, Integer addressId) {
 //      1、根据用户 id 查询该用户的收货地址列表
-        List<UserShippingAddress> list = UserShippingAddressMapper.selectList(new LambdaQueryWrapper<UserShippingAddress>().eq(UserShippingAddress::getUserId, userId));
+        List<UserShippingAddress> list = userShippingAddressMapper.selectList(new LambdaQueryWrapper<UserShippingAddress>().eq(UserShippingAddress::getUserId, userId));
         UserShippingAddress userShippingAddress = null;
         UserAddressVO userAddressVO;
         if (list.size() == 0) {
@@ -193,13 +199,12 @@ public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder
         return addressList;
     }
 
-
     @Override
     public SubmitOrderVO getPreOrderDetail(Integer userId) {
 
         SubmitOrderVO submitOrderVO = new SubmitOrderVO();
 //       1、查询用户购物车中选中的商品列表，如果为空直接返回 null
-        List<UserShoppingCart> cartList = UserShoppingCartMapper.selectList(new LambdaQueryWrapper<UserShoppingCart>().eq(UserShoppingCart::getUserId, userId).eq(UserShoppingCart::getSelected, true));
+        List<UserShoppingCart> cartList = userShoppingCartMapper.selectList(new LambdaQueryWrapper<UserShoppingCart>().eq(UserShoppingCart::getUserId, userId).eq(UserShoppingCart::getSelected, true));
         if (cartList.size() == 0) {
             return null;
         }
